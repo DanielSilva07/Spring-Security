@@ -1,0 +1,20 @@
+services:
+    db:
+      image: postgres
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: Garoupa97
+        POSTGRES_DB: postgres
+#      ports:
+#        - "5432:5432"
+      volumes:
+        - ./postgres-data:/var/lib/postgresql/data
+
+    app:
+      image: spring-security
+      container_name: Spring-Security
+      ports:
+        - "8080:8080"
+      depends_on:
+        - db
