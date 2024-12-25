@@ -29,18 +29,16 @@ public class JWTTokenGeneratorFilter  extends OncePerRequestFilter {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(null != authentication) {
             Environment env = getEnvironment();
-            if (null != env) {
-                String secret = env.getProperty(ApplicationConstants.JWT_SECRET_KEY, ApplicationConstants.JWT_SECRET_DEFAULT_VALUE);
-                SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes((StandardCharsets.UTF_8)));
-               String jwt = Jwts.builder().issuer("daniel").subject("JWT Token")
-                        .claim("username", authentication.getName())
-                        .claim("authorities", authentication.getAuthorities().stream().map(
-                                GrantedAuthority::getAuthority).collect(Collectors.joining(",")))
-                        .issuedAt(new Date())
-                        .expiration(new Date(System.currentTimeMillis() + 60000))
-                        .signWith(secretKey).compact();
-                response.setHeader(ApplicationConstants.JWT_HEADER, jwt);
-            }
+            String secret = env.getProperty(ApplicationConstants.JWT_SECRET_KEY, ApplicationConstants.JWT_SECRET_DEFAULT_VALUE);
+            SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes((StandardCharsets.UTF_8)));
+            String jwt = Jwts.builder().issuer("daniel").subject("JWT Token")
+                     .claim("username", authentication.getName())
+                     .claim("authorities", authentication.getAuthorities().stream().map(
+                             GrantedAuthority::getAuthority).collect(Collectors.joining(",")))
+                     .issuedAt(new Date())
+                     .expiration(new Date(System.currentTimeMillis() + 60000))
+                     .signWith(secretKey).compact();
+            response.setHeader(ApplicationConstants.JWT_HEADER, jwt);
         }
         filterChain.doFilter(request, response);
     }

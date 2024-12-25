@@ -58,7 +58,7 @@ public class SecurityConfig {
     //  http .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()); // Only HTTPS
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers( "/unsecure", "customer", "/error").permitAll()
-                .requestMatchers("/all").hasAuthority("admin")
+                .requestMatchers("/all").hasRole("user")
                 .requestMatchers("/secure").authenticated());
         http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
