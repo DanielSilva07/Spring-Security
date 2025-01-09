@@ -1,5 +1,6 @@
 package com.daniel.silva.spring_security.infra;
 
+
 import com.daniel.silva.spring_security.model.Customer;
 import com.daniel.silva.spring_security.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +20,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomerUserDetailsService implements UserDetailsService {
 
-    private final CustomerRepository CustomerRepository;
+   private final CustomerRepository CustomerRepository;
 
-    @Override
+   @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Customer customer = CustomerRepository.findByEmail(username).orElseThrow(() -> new
                 UsernameNotFoundException(" User not found " + username));

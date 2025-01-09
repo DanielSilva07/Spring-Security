@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,10 +23,9 @@ import java.util.stream.Collectors;
 
 public class JWTTokenGeneratorFilter  extends OncePerRequestFilter {
 
-
     @Override
-    protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response,
-                                     FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(null != authentication) {
             Environment env = getEnvironment();
@@ -36,7 +36,7 @@ public class JWTTokenGeneratorFilter  extends OncePerRequestFilter {
                      .claim("authorities", authentication.getAuthorities().stream().map(
                              GrantedAuthority::getAuthority).collect(Collectors.joining(",")))
                      .issuedAt(new Date())
-                     .expiration(new Date(System.currentTimeMillis() + 60000))
+                     .expiration(new Date(System.currentTimeMillis() + 30000000))
                      .signWith(secretKey).compact();
             response.setHeader(ApplicationConstants.JWT_HEADER, jwt);
         }

@@ -4,13 +4,19 @@ import com.daniel.silva.spring_security.filter.CsrfCookieFilter;
 import com.daniel.silva.spring_security.filter.JWTTokenGeneratorFilter;
 import com.daniel.silva.spring_security.filter.JWTTokenValidatorFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.authentication.AuthenticationManagerBeanDefinitionParser;
+import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +40,7 @@ public class SecurityConfig {
     SecurityFilterChain DefaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
         CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
+        http.securityContext(securityContext -> securityContext.requireExplicitSave(false));
                 http.sessionManagement(sessionConfig ->
                         sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 http.cors(corsConfig -> corsConfig.configurationSource(new CorsConfigurationSource() {
@@ -50,15 +57,16 @@ public class SecurityConfig {
                     }
                 }));
          http.csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
-                .ignoringRequestMatchers( "/customer")
+                .ignoringRequestMatchers( "/cadastrar", "logi" )
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class);
     //  http .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()); // Only HTTPS
         http.authorizeHttpRequests(requests -> requests
-                .requestMatchers( "/unsecure", "customer", "/error").permitAll()
-                .requestMatchers("/all").hasRole("user")
+                .requestMatchers("/cadastrar", "/error","/invalidSession" , "logi").permitAll()
+                .requestMatchers("/unsecure").hasAnyRole("USER" , "ADMIN")
+                .requestMatchers("/all").hasRole("ADMIN")
                 .requestMatchers("/secure").authenticated());
         http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
@@ -84,7 +92,7 @@ public class SecurityConfig {
                 new CustomerProdUserNameAuthenticationProvider(userDetailsService, passwordEncoder);
         ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(false);
-        return  providerManager;
+        return providerManager;
     }
 
 }

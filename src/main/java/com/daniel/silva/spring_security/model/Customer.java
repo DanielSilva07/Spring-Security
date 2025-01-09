@@ -12,7 +12,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.util.Set;
 
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
